@@ -14,7 +14,41 @@ object TD1 {
                         myWhile(b, f)
                 }
         }
+
+
+        /******************* Les reines ******************/
+        /* Définissons un alias de type */
+        type Position = (Int, Int)
+
+        /** Safe si elles ne sont pas sur la même ligne, même colone, ou même diagonale **/
+        def safe(q1: Position, q2 : Position) : Boolean) =
+                q1._1 != q2._1 && // Ligne
+                q1._2 != q2._2 && // Colone
+                (q1._1 - q2._1).abs != (q1._2 - q2._2).abs // Diagonale
+
+
+        def solveQueen(numberOfQueens: Int, f : List[Position] => Unit) : Unit = {
+
+            def place(n: Int) : Iterable[List[Position]] = { // List[List] car il y a plusieurs solutions, Iterable pour du lazy
+                if (n == 0)
+                    List(List())
+                else
+                    for {
+                        queens <- place(n-1)
+                        column <- 1 to numberOfQueens // On imbrique deux boucles comme ça !
+                        current = (n, column)
+                        if queens.forall(safe(_, current))
+                    }
+
+                        yield current :: queens
+            }
+
+            place(numberOfQueens).foreach(f)
+
+        }
+
 }
+        
 
 
 
@@ -170,8 +204,10 @@ case class Complex(a : Double, b : Double)
         override def equals(other : Any) =
                 other match {
                         case c : Complex => println("Match complex"); (re == c.re && im == c.im)
-                        //case d : Double => println("Match double"); re == d
-                        //case n : Int => println("Match Int"); re == n
+                        // Aucune conversion implicite n'est tentée, on ajoute donc explicitement
+                        // la comparaison d'égalité avec un entier ou un flottant
+                        case d : Double => println("Match double"); re == d
+                        case n : Int => println("Match Int"); re == n
                         case _ => println("Doesn't match complex"); false
                 }
 
@@ -182,13 +218,15 @@ case class Complex(a : Double, b : Double)
 
 object Complex
 {
-        // Inutile car Complex est une case-class
+        // Inutile car Complex est une case-class, ceci est déjà défini
         //def apply(re : Double, im : Double) = new Complex(re, im)
 
         def apply(re : Double) = new Complex(re, 0)
 
         // Il doit déjà y avoir des conversions implicites Int => Double,
-        // et le tout s'enchaîne, vu que cette simple définition marche
-        // pour l'addition d'Int
+        // et le tout s'enchaîne.
+        // NON : règle de one-at-a-time : on ne chaîne pas les conversions implicites
+        // le fait que ça marche viendrait-il alors du fait que 3 est une écriture
+        // valable pour un Double ?
         implicit def toComplex(x : Double) = Complex(x, 0)
 }
