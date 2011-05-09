@@ -2,12 +2,12 @@ package net.rfc1149.td1
 
 object TD1 {
 
-        // Placer ici le code de isOdd & friends
+        /** Exercice 1 **/
         def isOdd(n : Int) = (n % 2 == 1)
-
         def isEven(n : Int) = (n % 2 == 0)
 
-        /** Les while **/
+
+        /** Exercice 3 **/
         def myWhile(b : => Boolean, f : => Any) : Unit = {
                 if (b) {
                         f
@@ -16,33 +16,39 @@ object TD1 {
         }
 
 
-        /******************* Les reines ******************/
+        /******************* Problème des reines ******************/
         /* Définissons un alias de type */
         type Position = (Int, Int)
 
         /** Safe si elles ne sont pas sur la même ligne, même colone, ou même diagonale **/
-        def safe(q1: Position, q2 : Position) : Boolean) =
+        def safe(q1: Position, q2 : Position) : Boolean =
                 q1._1 != q2._1 && // Ligne
                 q1._2 != q2._2 && // Colone
                 (q1._1 - q2._1).abs != (q1._2 - q2._2).abs // Diagonale
 
 
-        def solveQueen(numberOfQueens: Int, f : List[Position] => Unit) : Unit = {
-
-            def place(n: Int) : Iterable[List[Position]] = { // List[List] car il y a plusieurs solutions, Iterable pour du lazy
+        def solveQueens(numberOfQueens: Int, f : List[Position] => Unit) : Unit = {
+            
+            /** Résolvons le problème de manière récursive, pour placer n reines sur l'échiquier
+             * numberOfQueens * n, il suffit d'en placer n-1 sur l'échiquer numberOfQueens * (n-1),
+             * puis d'en ajouter une dans une nouvelle colone en évitant les positions dangereuses **/
+            def place(n: Int) : Iterable[List[Position]] = {
+            // Iterable[List] car il y a plusieurs solutions, Iterable pour transformer ça en générateur
                 if (n == 0)
                     List(List())
                 else
                     for {
-                        queens <- place(n-1)
-                        column <- 1 to numberOfQueens // On imbrique deux boucles comme ça !
+                        queens <- place(n-1) // Pour chaque solution trouvée pour n-1
+                        column <- 1 to numberOfQueens // Pour chaque colone de l'échiquier (bcles imbriquées !)
                         current = (n, column)
-                        if queens.forall(safe(_, current))
+                        if queens.forall(safe(_, current)) // et si la place est sûre
                     }
+                        // Alors on a une nouvelle solution (que l'on yield au lieu de concaténer car on retourne un itérable)
+                        yield current :: queens // Ceci est le "corps de la boucle for"
 
-                        yield current :: queens
             }
 
+            // Effectuer l'action désirée sur le résultat final
             place(numberOfQueens).foreach(f)
 
         }
@@ -61,15 +67,13 @@ object td1 extends Application {
 }
 
 
+/** Exercice 2 **/
 class ExtSeq[T] (sequence : Seq[T]) {
 
         private val seq : Seq[T] = sequence
 
-
-        /** La fonction all, qui regarde si l'un au moins des éléments de la liste
-         * vérifie le prédicat passé en argument **/
-
-        /* La version "fait du Caml en Scala" */
+        /* La version "comme en Caml" */
+        /*
         def all(f : T => Boolean) = {
                 def aux (fun : T=> Boolean, s : Seq[T]) : Boolean = {
                         s match {
@@ -79,32 +83,15 @@ class ExtSeq[T] (sequence : Seq[T]) {
                 }
                 aux (f, seq)
         }
+        */
 
 
-        //def all(f : T => Boolean) : Boolean = {
-                //seq match {
-                        //case Nil => true
-                        //case _ => f(seq.head) && (new ExtSeq[T](seq.tail)).all(f)
-                //}
-        //}
+        /* La version "utilise les trucs pratiques de Scala" */
+        def all(f : T => Boolean) = seq.forall(f)
 
+        /* IL y en a au moins un de vrai s'ils ne sont pas tous faux, donc pas tous
+         * vrais pour le test complémentaire */
 
-        
-        //def any(f : T => Boolean) : Boolean = {
-                //seq match {
-                        //case Nil => false
-                        //case _ => f(seq.head) || (new ExtSeq[T](seq.tail)).any(f)
-                //}
-        //}
-
-
-
-        // Le refaire avec un forall(), manière plus idiomatique
-
-        //def all(f : T => Boolean) = seq.forall(f)
-
-        /* At least one is True if at least one is false for the complementary test,
-         * i.e if all are not true for complementary test. */
         //def any(f : T => Boolean) = !all(!f) // Ne compile pas...
         def any (f : T => Boolean) = {
                 def not_f(x : T) = !f(x)
@@ -118,6 +105,7 @@ class ExtSeq[T] (sequence : Seq[T]) {
 
 object ExtSeq {
 
+        /* La conversion implicite pour les séquences "normales" */
         implicit def toExtSeq[T](s : Seq[T]) = new {
                 def all(f : T => Boolean) = (new ExtSeq[T](s)).all(f)
                 def any(f : T => Boolean) = (new ExtSeq[T](s)).any(f)
@@ -129,7 +117,7 @@ object ExtSeq {
 
 
 
-
+/** Exercice 3 **/
 class ExtCond (bool :  => Boolean) {
 
         private def b = bool
@@ -154,7 +142,9 @@ object ExtCond {
 
 
 
-/*** La classe pour les complexes ***/
+/***************************************************************
+ *              Exercice 4 : nombres complexes
+ ***************************************************************/
 case class Complex(a : Double, b : Double)
 {
         import Complex._
@@ -162,7 +152,6 @@ case class Complex(a : Double, b : Double)
 
         val re : Double = a
         val im : Double = b
-        
 
         /** Un pretty print **/
         override def toString() = {
@@ -203,12 +192,12 @@ case class Complex(a : Double, b : Double)
 
         override def equals(other : Any) =
                 other match {
-                        case c : Complex => println("Match complex"); (re == c.re && im == c.im)
+                        case c : Complex => (re == c.re && im == c.im)
                         // Aucune conversion implicite n'est tentée, on ajoute donc explicitement
                         // la comparaison d'égalité avec un entier ou un flottant
-                        case d : Double => println("Match double"); re == d
-                        case n : Int => println("Match Int"); re == n
-                        case _ => println("Doesn't match complex"); false
+                        case d : Double => re == d
+                        case n : Int => re == n
+                        case _ => false
                 }
 
 }
@@ -222,6 +211,7 @@ object Complex
         //def apply(re : Double, im : Double) = new Complex(re, im)
 
         def apply(re : Double) = new Complex(re, 0)
+
 
         // Il doit déjà y avoir des conversions implicites Int => Double,
         // et le tout s'enchaîne.

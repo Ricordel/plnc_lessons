@@ -117,10 +117,8 @@ class Tests extends Spec with ShouldMatchers {
      }
 
      it ("should compare with Double or Int") {
-             //Complex(1) should equal(1)
-             //1 should equal(Complex(1))
-             //4.56 should equal(Complex(4.56))
-             //Complex(3.256) should equal(3.256)
+             Complex(1) should equal(1)
+             Complex(3.256) should equal(3.256)
      }
 
      it ("should handle unary -") {
@@ -146,28 +144,28 @@ class Tests extends Spec with ShouldMatchers {
              Complex(4, 4) / Complex(3, 4) should equal(Complex(1.12, -0.16))
      }
    }
-//
-//   describe("solveQueens") {
-//
-//     it ("should find the unique solution for 1 queen") {
-//       var l = List[(Int, Int)]()
-//       solveQueens(1, l :::= _)
-//       l should equal (List((1, 1)))
-//     }
-//
-//     it ("should not find any solution for 2 and 3 queens") {
-//       var n = 0
-//       solveQueens(2, _ => n += 1)
-//       solveQueens(3, _ => n += 1)
-//       n should equal (0)
-//     }
-//
-//     it ("should find all solutions for 8 queens") {
-//       var n = 0
-//       solveQueens(8, _ => n += 1)
-//       n should equal (92)
-//     }
-//
-//   }
+
+   describe("solveQueens") {
+
+     it ("should find the unique solution for 1 queen") {
+       var l = List[(Int, Int)]()
+       solveQueens(1, l :::= _)
+       l should equal (List((1, 1)))
+     }
+
+     it ("should not find any solution for 2 and 3 queens") {
+       var n = 0
+       solveQueens(2, _ => n += 1)
+       solveQueens(3, _ => n += 1)
+       n should equal (0)
+     }
+
+     it ("should find all solutions for 8 queens") {
+       var n = 0
+       solveQueens(8, _ => n += 1)
+       n should equal (92)
+     }
+
+   }
 
 }

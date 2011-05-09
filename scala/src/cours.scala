@@ -237,5 +237,93 @@ case object E extends L[Nothing]
 
 
 
+/*****************************************************************************************/
+/*************************** La concurrence avec les acteurs *****************************/
+
+/* On ne partage plus de données, on échange des données immutables qu el'on poste dans une
+ * boîte aux lettres */
+
+import scala.actors.Actor
+
+// Un acteur qui parle toutes les secondes
+class myActor extends Actor {
+    def act() = 
+        while (true) {
+            println("foobar")
+            Thread.sleep(1000)
+        }
+}
 
 
+
+class myActor extends Actor {
+    def act() = {
+        while (true) {
+            receive {
+                case x: String => println("Hello" + x)
+            }
+        }
+    }
+}
+
+// Envoyer un message : acteur ! message
+self ! "Bonjour"
+
+receive { case x => x}
+
+self receiveWithin(1000) { case x => x}
+/* Si rien n'est reçu dans les 1000 ms, on reçoit un objet TIMEOUT */
+import scala.actors.TIMEOUT
+
+
+// self est à importer depuis je sais plus où
+self.receiveWithin(1000) {
+    case TIMEOUT => println("timeout"); 42
+    case x => x
+}
+
+
+
+class myActor extends Actor {
+    def act() = {
+        while (true) {
+            receive {
+                case "PING" => reply(sender)
+                case x: Int => reply(x+1)
+            }
+        }
+    }
+}
+
+/* Pour obtenir une réponse */
+a !? "PING"
+/* Créé un nouveau channel pour la réponse, ce qui permet d'être sûr que le messge reçu
+ * sur ce channel est la réponse à la question et pas un autre message d'un autre acteur */
+
+ (a !? 3) match { case x: Int => Some(x); case _ => None }
+
+/* Retourne une future, qui sera évaluée plus tard : */
+val fut = a !! 3 
+
+
+/** Receive bloque un thread. On peut aussi utiliser react, qui ne s'exécutera qu'une seule fois.
+ * react() est juste une fonction utilisée dans une table, beaucoup plus léger qu'un thread **/
+class MyActor extends Actor {
+
+    def act() = 
+        loop { // permet de fabriquer une fonction récursive à partir du bloc de code
+            react {
+                case "PING" => reply(sender);
+                case x: Int => reply(x+1)
+            }
+        }
+    
+}
+
+
+a = new MyActor
+a.start
+a !? "Coucou"
+
+/** Pour du boradcast : utiliser les futures. Comme ça, on lance toutes les questions, 
+ * PUIS on attend les réponses au lieu de tout sérialiser **/
