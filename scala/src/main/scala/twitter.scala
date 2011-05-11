@@ -5,7 +5,7 @@
 
 package net.ricordel.twitterApi
 
-
+import scala.actors.Actor
 
 
 /** Format implicite, utilisé par les méthodes de la lib **/
@@ -13,37 +13,68 @@ package net.ricordel.twitterApi
 //parse(...).extract[Type]
 
 
-object Twitter {
-
-    def main(args : Array[String]) = {
-        val proxy = new twitterProxy()
-        proxy.first_test()
-    }
-
-}
-
-
-
-object twitterProxy {
-    implicit val formats = DefaultFormats
+case class Tweet(val from_user: String, val text: String, val created_at: String)
+{
+    override def toString() = "\n\n" + from_user + " wrote : \n" + text
 }
 
 
 
 // Penser à encoder la chaîne de recherche, avecn java.net.URL(..., "UTF-8")
-object twitterProxy {
+object TwitterActor {
     import net.liftweb.json._
-    import net.liftweb.json.jsonParser._
     import scala.actors.Actor
     import scala.io.Source._
+    import dispatch._
 
-    def first_test()  = {
-        val url = "search.twitter.com/search.json?q=@rfc1149&rpp=10&page=1"
-        val rslt = parse(fromUrl(url))
+    implicit val formats = DefaultFormats
 
-        println(rslt)
+
+    // Utiliser dispatch pour voir
+    def search(req: String) : List[Tweet] = {
+        val http = new Http
+        val request = :/("search.twitter.com") / "search.json" <<? Map("q" -> req)
+        
+        val raw_rslt = parse(http(request as_str)) \ "results"
+        raw_rslt.children map{_.extract[Tweet]}
+    }
+
+
+
+    def main(args : Array[String]) = {
+        val actor = new TwitterActor
+        actor.start
+        val ret = actor !! "#fail" // Retourne une future
+
+        ret() match {
+            case l: List[Tweet] => l foreach println
+            case _ => println("The answer was not a tweets list")
+        }
+
+        actor ! Exit
     }
 
 }
 
 
+
+
+
+class TwitterActor extends Actor
+{
+    import TwitterActor._
+
+    
+    def act() = 
+        loop {
+            react {
+                case Exit => exit()
+                case s: String => reply(search(s))
+                case _ => reply("Message content must be a String")
+            }
+        }
+
+}
+
+
+object Exit
