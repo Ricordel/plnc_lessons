@@ -13,4 +13,6 @@ class TD1Project(info: ProjectInfo) extends DefaultProject(info) {
 
   val lift_json = "net.liftweb" %% "lift-json" % "2.3"
 
+  val dispatch = "net.databinder" %% "dispatch" % "0.8.1"
+
 }

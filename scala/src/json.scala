@@ -1,6 +1,6 @@
 /*************************** Faire du JSON avec scala ***************************/
 /* Ajouter du lift_json dans le paramétrage du projet */
-/* val lift_json = "net.liftweb" %% "lift-json" % "2.3"
+/* val lift_json = "net.liftweb" %% "lift-json" % "2.3" */
 
 import net.liftweb.json._
 import net.liftweb.jsonParser._

@@ -327,3 +327,18 @@ a !? "Coucou"
 
 /** Pour du boradcast : utiliser les futures. Comme ça, on lance toutes les questions, 
  * PUIS on attend les réponses au lieu de tout sérialiser **/
+
+
+// Regarder socat : fait du réseau sur n'importe quoi, listen partout !
+
+
+a !! ("get_tweet", {case w: Tweet => x}) // permet de retourner un future[Tweet]
+
+
+
+implicit def toCR (f: Function[Int, Unit]): ClickReceiver = 
+        new ClickReceiver { def onReceive(id: Int) ) f(id) }
+
+// Maintenant : 
+button.addClickReceiver(id => println("Hello" + id))
+// pourrait marcher
