@@ -1,0 +1,191 @@
+En factor, on défini des mots, qui vont chercher leurs arguments sur une
+pile.
+
+Ex : 3 4 5 * +
+Appelle la multiplication sur le sommet de la pile (4, 5), empile le
+résultat (20), puis additionne avec 3
+
+Ordre des oéprations : 
+4 3 -
+retourne 1
+
+
+==== Quelques fonctions de base ====
+dup : dulique le sommet de la pile
+2dup : duplique les 2 éléments au sommet de la pile. 3dup aussi
+drop : enlève le sommet de la pile
+2drop, 3drop, d'autres dans des lib additionnelles
+swap : échange les deux éléments du sommet
+cleat : efface la pile
+. : prend un élément sur la pile, et l'affiche
+print : affiche une chaîne présente au sommet de la pile
+reverse : reverse une liste ou une chaîne
+
+
+
+==== Utilisation de vocabulaires ====
+USE: math.primes
+charge la bibliothèque et ajoute les pots dans le scope
+10 prime?
+indique alors si un nombre est premier ou non. Le résultat est empilé
+sur la pile :
+t = true; f = false
+
+* Obtenir de l'aide *
+Mettre un mot sur la pile :
+\ le_mot
+\ prime?
+
+Une fois que le mot est sur la pile, on peut appeler help dessus
+
+
+Il n'y a pas de limitation dans la manipulation des nombres entiers
+
+
+
+==== Les types ====
+=== Les types numériques ===
+--
+	- *Les entiers* : illimités dans leur manipulation
+	- *Les fractions* : On peut avoir 2+3/4 sur la pile, et le
+	  garder comme tel, il sera manipulé comme il faut
+	- *Les flottants* : 42.34
+--
+
+=== Les chars et strings ===
+--
+	- *Les chaînes* : supporte l'Unicode sans aucun problème. La
+  	fonction first retournera le code du premier char de la chaîne
+	qui est au sommet de la pile
+	- *Un caractère* : CHAR: space ; { CHAR: h CHAR: e CHAR: l CHAR: l
+	CHAR: o }
+	/!\ L'espace après l'accolade ouvrate est obligatoire /!\
+--
+
+Transformer un tableau de chars en chaine : >string
+
+"hello" unclip
+
+
+Les arrays sont des types immutables.
+
+Pour du mutable, utiliser des vecteurs : 
+V{ 1 2 3 }
+Si on le duplique, on obtient une référence sur le même objet
+On peut utiliser le mot clone pour une copie en profondeur
+
+
+
+
+==== Déclarer un mot : ====
+gen ( --- x y z) 1 2 3 ;
+défini le mot gen qui laisse 3 éléments sur la pile les 3 éléments 1 2 3
+
+Quand on travaille dans l'interprêteur, on est dans le vocab scratchpad,
+qui, par défaut, masque les autres s'il y a un conflit de nom
+
+
+
+
+==== Les continuations ====
+\ 4drop see a proposé un restart si le mot n'est pas dans le vocabulaire
+
+Créer un objet qui représente la suite du programme, puis on peut le
+sauver dans une variable, puis le rappeler, ...
+
+Quand l'interprêteur propose une continuation, on n'est pas obligé de
+s'en servir tout de suite, on peut faire autre chose, *puis* rappeler la
+continuation pour continuer le programme.
+Permet de définir l'opérateur angélique, qui sauvegarde des
+continuations, puis les appelle si on dit fail
+
+
+
+==== Les combinateurs ====
+ : f ( c -- ) . ;
+ : g ( c -- ) . ;
+
+ appeler f(2+3) puis g(2+3)
+ 2 3 + dup f g
+
+
+ : f ( x -- y ) 2 *;
+ : g ( x -- y ) 3 *;
+ 2 3 + dup f swap g
+ Il parait que c'est moche, car il faut se souvenir qu'on a laissé un
+ truc sur la pile
+
+Mieux, avec des combinateur : 
+2 3 + [ f ] [ g ] bi
+a laissé deux "quotations" sur la pile, bi applique deux quotations à un
+argument. La sauvegarde de l'argument est automatique. 2bi s'il y a deux
+arguments
+
+
+Enlever le 3è élément : [ drop ] 2dip
+Cela met de côté deux éléments au sommet et exécute la quotation sur ce
+qu'il reste, puis remet les 2 éléments
+
+10 20 30 [ * 1 + ] dip
+mettra 201 sur la pile, puis réempilera le 30 qui a été mis de côté
+
+bi@ : inverse de bi : prend UNE quotation et l'applique aux 2 éléments
+du sommet
+
+10 20 30 40
+[ + 1 ] bi@
+ensuite présent sur la pile : 10 20 31 41
+
+10 sur la pile, puis [20 30 40] dip
+Pile résultante : 20 30 40 10
+
+tri : pareil mais pour 3 applications :
+10 [ 1 + ] [ 2 * ] [ 2 / ] tri
+met 11 20 5 sur la pile
+
+tri@ : applique une quotation sur les 3 élémets au sommet
+
+
+bi* : on a deux valeurs sur la pile, et deux quotations, et on veut
+appliquer la première quotation à la première valeur, et la seconde à
+l'autre valeur.
+
+10 11
+[ 2 * ] [ 3 * ] bi*
+Donne : 20 33
+
+
+Sur la pile, on a 10 20 30, on veut récupérer leur addition et leur
+multiplication :
+[ + + ] [ * * ] 3bi
+Le "3" dit qu'on va prendre 3 éléments, le "bi" veut dire qu'il y a deux
+quotations
+
+
+On a les fonctions sum et length. Voici la moyenne :
+: mean ( l -- n ) [ sum ] [ length ] bi /;
+
+Le combinateur keep : 
+11 13 + keep
+donne 24 13
+
+
+
+
+Pour définir son propre vocabulaire, le mieux est de le mettre dans le
+répertoire work de la distribution
+
+refresh-all pour tout recharger
+
+mot-clé over
+
+
+
+5 V{ }
+[ push ] keep
+Fera V{ 5 } au lieu de la pile vide
+6 over push
+Mettra : V{ 5 6 }
+
+
+
