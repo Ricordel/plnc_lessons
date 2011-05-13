@@ -331,8 +331,7 @@ a !? "Coucou"
 
 // Regarder socat : fait du réseau sur n'importe quoi, listen partout !
 
-
-a !! ("get_tweet", {case w: Tweet => x}) // permet de retourner un future[Tweet]
+a !! ("get_tweet", {case w: Tweet => x}) // permet de retourner un Future[Tweet]
 
 
 
