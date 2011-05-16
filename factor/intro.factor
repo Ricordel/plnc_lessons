@@ -16,26 +16,26 @@ USING: kernel math sequences unicode.case memoize ;
 : empty ( -- v ) V{ } ;
 1 over push
 ! Cela vient de modifier l'objet vecteur vide qui a été généré
-! une seule fous à la compilation !
+! une seule fois à la compilation !
 
 ! Pour que ça ne pose pas de problème : 
 : empty ( -- v ) V{ } clone ;
 
 : global ( -- v ) V{ 0 } ;
 : read ( -- v ) global last ;
-: write ( v -- ) global over push ! ??
+: write ( v -- ) global over push ; ! ??
+: write ( v -- ) global push ; ! sera mieux !
 
 
 ! Des hashtables :
-H{ { "Bertrand" "Chazot" } { "John" "Doe" } }
+H{ { "Bertrand" "Chazot" } { "John" "Doe" } } ;
 ! Regarder dans le vocatulaire assocs, par exemple "assocs
 ! about"
 
 [ >upper ] change-at ; ! Attention à l'ordre des éléments de la
-! entre la hashmap et la clé
+! entre la hashmap et la clé, la map doit être au-dessus de la clé
 
-[ [ >lower ] change-at ] keep ;
-
+[ [ >lower ] change-at ] keep ; ! permet de garder la map
 ! Attention, comme les Vectors, les tables de hashage sont
 ! mutables !
 
@@ -45,6 +45,8 @@ H{ { "Bertrand" "Chazot" } { "John" "Doe" } }
 ! Les tuples (on commence à faire de l'objet)
 TUPLE: customer balance beverages ;
 TUPLE: drink name cost ;
+
+C: <drink> drink  ! Défini un constructeur "automatique"
 
 : <customer> ( -- e )
         customer new 0 >>balance V{ } clone >>beverages ;
@@ -56,9 +58,10 @@ TUPLE: drink name cost ;
 : add-drink-to-beverages ( drink customer -- )
         beverages>> push 
         ! Car beverages est un vector, donc mutable
+        ! beverages>> comsomme un customer et empile son champ beverages
 
-C: <drink> drink  ! Défini un constructeur "automatique"
 
+! Créer une nouvelle boisson (grâce au constructeur automatique j'imagine ?
 T{ drink f "long island" 4 } ;
 
 ! Acheter une boisson
@@ -179,3 +182,11 @@ MEMO: fibo ( n -- x )
 
 10 iota ! itérateur
 [ fibo ] map
+
+
+
+! Utilisation de cond qui prend une liste de paires de quotations
+! dans le vocabulaire combinators
+: fact ( x -- n )
+        {
+                { 

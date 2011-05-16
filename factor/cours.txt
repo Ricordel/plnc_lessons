@@ -5,7 +5,7 @@ Ex : 3 4 5 * +
 Appelle la multiplication sur le sommet de la pile (4, 5), empile le
 résultat (20), puis additionne avec 3
 
-Ordre des oéprations : 
+Ordre des opérations : 
 4 3 -
 retourne 1
 
@@ -16,7 +16,7 @@ dup : dulique le sommet de la pile
 drop : enlève le sommet de la pile
 2drop, 3drop, d'autres dans des lib additionnelles
 swap : échange les deux éléments du sommet
-cleat : efface la pile
+clear : efface la pile
 . : prend un élément sur la pile, et l'affiche
 print : affiche une chaîne présente au sommet de la pile
 reverse : reverse une liste ou une chaîne
@@ -39,7 +39,6 @@ Mettre un mot sur la pile :
 Une fois que le mot est sur la pile, on peut appeler help dessus
 
 
-Il n'y a pas de limitation dans la manipulation des nombres entiers
 
 
 
@@ -102,18 +101,18 @@ continuations, puis les appelle si on dit fail
 
 
 ==== Les combinateurs ====
- : f ( c -- ) . ;
- : g ( c -- ) . ;
+: f ( c -- ) . ;
+: g ( c -- ) . ;
 
- appeler f(2+3) puis g(2+3)
- 2 3 + dup f g
+appeler f(2+3) puis g(2+3)
+2 3 + dup f g
 
 
- : f ( x -- y ) 2 *;
- : g ( x -- y ) 3 *;
- 2 3 + dup f swap g
- Il parait que c'est moche, car il faut se souvenir qu'on a laissé un
- truc sur la pile
+: f ( x -- y ) 2 *;
+: g ( x -- y ) 3 *;
+2 3 + dup f swap g
+Il parait que c'est moche, car il faut se souvenir qu'on a laissé un
+truc sur la pile
 
 Mieux, avec des combinateur : 
 2 3 + [ f ] [ g ] bi
@@ -186,6 +185,3 @@ mot-clé over
 Fera V{ 5 } au lieu de la pile vide
 6 over push
 Mettra : V{ 5 6 }
-
-
-
