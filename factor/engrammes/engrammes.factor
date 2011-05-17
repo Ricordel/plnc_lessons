@@ -1,6 +1,14 @@
 IN: engrammes
 
-USING: math math.primes math.primes.factors kernel hashtables sequences assocs strings vectors ;
+USING: assocs kernel hashtables math math.parser math.primes math.primes.factors peg peg.ebnf sequences strings vectors ;
+
+
+
+
+! ==========================================================
+! ====              Encodage des engrammes              ====
+! ==========================================================
+
 
 
 
@@ -19,7 +27,7 @@ USING: math math.primes math.primes.factors kernel hashtables sequences assocs s
     dup 1 > [
         decompose
         [ at ] curry map
-        H{ { f 0 } } substitute
+        H{ { f 0 } } substitute ! FIXME : 0|| devrait s'y prêter mieux ?
         [ prime-factors ] map
     ] when
 ; PRIVATE>
@@ -32,7 +40,7 @@ USING: math math.primes math.primes.factors kernel hashtables sequences assocs s
     dup vector? [
         [ factors>engramme ] map concat "(" ")" surround
     ] [
-        48 + 1string
+        48 + 1string ! TODO : il doit y avoir un truc built-in qui fait ça
     ] if
 ; PRIVATE>
 
@@ -46,4 +54,16 @@ USING: math math.primes math.primes.factors kernel hashtables sequences assocs s
 
 
 
-! Pour l'opération de décodage, il semble y avoir des parseurs EBNF en factor !
+
+! ==========================================================
+! ====              Décodage des engrammes              ====
+! ==========================================================
+
+EBNF: engramme
+    digit = [0-1] => [[ digit> ]]
+
+    simple = (digit)+
+
+    eng =   simple => [[ first ]]
+            | "(" ( eng )+ ")" => [[ second ]]
+;EBNF
