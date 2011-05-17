@@ -1,6 +1,6 @@
 IN: engrammes
 
-USING: math math.primes kernel ;
+USING: math math.primes math.primes.factors kernel hashtables sequences assocs ;
 
 
 ! Utiliser du map-reduce : 
@@ -15,9 +15,8 @@ USING: math math.primes kernel ;
 ! supremum pour le max d'une liste
 
 ! at dans une assoc avec une valeur par défaut : existe
-! ou utiliser le fait ue ça retourne f en cas d'erreur => truc || f fera ce qu'on veut
+! ou utiliser le fait ue ça retourne f en cas d'erreur => truc || default fera ce qu'on veut...
 ! curry
-! Un map tout seul à la fin ??
 
 ! primes-upto
 
@@ -29,6 +28,16 @@ USING: math math.primes kernel ;
 
 ! map ??
 
+: prime-factors ( nb -- list )
+    dup 1 > [
+        group-factors [ supremum first primes-upto ] keep >hashtable
+        [ at ] curry map
+        H{ { f 0 } } substitute
+    ] when
+;
+
+
+! : recursive-prime-factors ( nb -- list )
 
 
 : parse ( int -- str )
