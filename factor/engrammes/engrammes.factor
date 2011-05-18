@@ -1,6 +1,6 @@
 IN: engrammes
 
-USING: assocs kernel hashtables math math.functions math.parser math.primes math.primes.factors peg peg.ebnf sequences strings vectors ;
+USING: assocs combinators combinators.short-circuit kernel hashtables math math.functions math.parser math.primes math.primes.factors peg peg.ebnf sequences strings vectors ;
 
 
 
@@ -22,12 +22,11 @@ USING: assocs kernel hashtables math math.functions math.parser math.primes math
 
 
 ! Mettre sur la pile un vecteur contenant les exposants des divers nombres
-! premiers, de manière récursive (les exposants trop grands sont aussi transformés
+! premiers, de manière récursive (les exposants trop grands sont aussi transformés)
 <PRIVATE : prime-factors ( nb -- list )
     dup 1 > [
         decompose
-        [ at ] curry map
-        H{ { f 0 } } substitute ! FIXME : 0|| devrait s'y prêter mieux ?
+        [ at dup [ drop 0 ] unless ] curry map
         [ prime-factors ] map
     ] when
 ; PRIVATE>
@@ -40,7 +39,7 @@ USING: assocs kernel hashtables math math.functions math.parser math.primes math
     dup vector? [
         [ factors>engramme ] map concat "(" ")" surround
     ] [
-        48 + 1string ! TODO : il doit y avoir un truc built-in qui fait ça
+        >digit 1string
     ] if
 ; PRIVATE>
 
@@ -54,11 +53,12 @@ USING: assocs kernel hashtables math math.functions math.parser math.primes math
 
 
 
-
 ! ==========================================================
 ! ====              Décodage des engrammes              ====
 ! ==========================================================
 
+
+ERROR: malformed ;
 
 EBNF: engramme
     digit = [0-1] => [[ digit> ]]
@@ -71,27 +71,29 @@ EBNF: engramme
 ;EBNF
 
 
-: n-first-primes ( n -- list )
+<PRIVATE : n-first-primes ( n -- list )
     [ V{ } clone 1 ] dip
     [ next-prime [ over push ] keep ] times drop
-;
+; PRIVATE>
 
 
-: compute-tree ( vector -- int )
-    dup [ vector? ] any? [ ! Cas de récursion : il y a encore des niveaux dans l'arbre
+! Pour calculer la valeur associée au vecteur retourné par le parseur,
+! on calcule récursivement la valeur des divers exposants, ce qui nécessite
+! de n'avoir qu'un seul niveau de profondeur dans la notation des exposants
 
-       [ dup vector? [ compute-tree ] when ] map  ! réduit un étage
-       compute-tree ! et recommence !
-
-    ] [ ! Cas de base, il n'y a que des nombres dans le tableau
-        dup length n-first-primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
+<PRIVATE : compute-tree ( vector -- int )
+    dup [ vector? ] any? [ ! Cas de récursion
+       [ dup vector? [ compute-tree ] when ] map
+       compute-tree
+    ] [     ! Cas de base
+        dup length n-first-primes zip ! tableau du même type que group-factors, mais les couples sont dans l'autre sens
         [ dup first [ second ] dip ^ ] [ * ] map-reduce
     ] if
-;
+; PRIVATE>
+
 
 
 : engramme>number ( eng -- n )
-    engramme compute-tree
+    engramme
+    dup vector? [ compute-tree ] [ ] if
 ;
-
-
