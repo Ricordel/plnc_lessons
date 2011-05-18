@@ -1,6 +1,6 @@
 IN: engrammes
 
-USING: assocs kernel hashtables math math.parser math.primes math.primes.factors peg peg.ebnf sequences strings vectors ;
+USING: assocs kernel hashtables math math.functions math.parser math.primes math.primes.factors peg peg.ebnf sequences strings vectors ;
 
 
 
@@ -59,6 +59,7 @@ USING: assocs kernel hashtables math math.parser math.primes math.primes.factors
 ! ====              Décodage des engrammes              ====
 ! ==========================================================
 
+
 EBNF: engramme
     digit = [0-1] => [[ digit> ]]
 
@@ -67,3 +68,25 @@ EBNF: engramme
     eng =   simple => [[ first ]]
             | "(" ( eng )+ ")" => [[ second ]]
 ;EBNF
+
+
+: n_first_primes ( n -- list )
+    [ V{ } clone 1 ] dip
+    [ next-prime [ over push ] keep ] times drop
+;
+
+: compute ( vector -- int )
+        dup length n_first_primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
+        [ dup first [ second ] dip ^ ] [ * ] map-reduce
+;
+
+
+! : compute ( vector -- int )
+    ! [ vector? ] any?   [ ! Cas de récursion : il y a encore des niveaux dans l'arbre
+
+
+    ! ] [ ! Cas de base, il n'y a que des nombres dans le tableau
+        ! dup size n_first_primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
+        ! [ dup first [ second ] dip ^ ] [ * ] map-reduce
+    ! ] if
+! ;
