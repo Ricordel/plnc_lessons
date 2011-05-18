@@ -65,28 +65,33 @@ EBNF: engramme
 
     simple = (digit)+
 
-    eng =   simple => [[ first ]]
-            | "(" ( eng )+ ")" => [[ second ]]
+    eng =  digit 
+            | "(" simple ")" => [[ second ]]
+            | "(" (eng)+ ")" => [[ second ]]
 ;EBNF
 
 
-: n_first_primes ( n -- list )
+: n-first-primes ( n -- list )
     [ V{ } clone 1 ] dip
     [ next-prime [ over push ] keep ] times drop
 ;
 
-: compute ( vector -- int )
-        dup length n_first_primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
+
+: compute-tree ( vector -- int )
+    dup [ vector? ] any? [ ! Cas de récursion : il y a encore des niveaux dans l'arbre
+
+       [ dup vector? [ compute-tree ] when ] map  ! réduit un étage
+       compute-tree ! et recommence !
+
+    ] [ ! Cas de base, il n'y a que des nombres dans le tableau
+        dup length n-first-primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
         [ dup first [ second ] dip ^ ] [ * ] map-reduce
+    ] if
 ;
 
 
-! : compute ( vector -- int )
-    ! [ vector? ] any?   [ ! Cas de récursion : il y a encore des niveaux dans l'arbre
+: engramme>number ( eng -- n )
+    engramme compute-tree
+;
 
 
-    ! ] [ ! Cas de base, il n'y a que des nombres dans le tableau
-        ! dup size n_first_primes zip ! tableau du même type que celui donné par group-factors, mais à l'envers
-        ! [ dup first [ second ] dip ^ ] [ * ] map-reduce
-    ! ] if
-! ;
