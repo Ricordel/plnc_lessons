@@ -30,3 +30,23 @@ USING: tools.test engrammes engrammes.private ;
 { "((11))" }    [ 64 >engramme ] unit-test
 { "((1)(1)101)" } [ 1980 >engramme ] unit-test
 { "(0010000000000000000000000000000000000000000000000000000000000000000000000000001)" } [ 2005 >engramme ] unit-test
+
+
+! === Test du décodage d'engrammes ===
+! Si l'encodage marche (tests ci-dessus), vérifier que les nombres sont bien
+! stables par encodage-décodage suffit
+{ 0 }    [ 0 >engramme engramme>number ] unit-test
+{ 1 }    [ 1 >engramme engramme>number ] unit-test
+{ 2 }    [ 2 >engramme engramme>number ] unit-test
+{ 3 }    [ 3 >engramme engramme>number ] unit-test
+{ 4 }    [ 4 >engramme engramme>number ] unit-test
+{ 5 }    [ 5 >engramme engramme>number ] unit-test
+{ 6 }    [ 6 >engramme engramme>number ] unit-test
+{ 7 }    [ 7 >engramme engramme>number ] unit-test
+{ 8 }    [ 8 >engramme engramme>number ] unit-test
+{ 9 }    [ 9 >engramme engramme>number ] unit-test
+{ 10 }   [ 10 >engramme engramme>number ] unit-test
+{ 36 }   [ 36 >engramme engramme>number ] unit-test
+{ 64 }   [ 64 >engramme engramme>number ] unit-test
+{ 1980 } [ 1980 >engramme engramme>number ] unit-test
+{ 2005 } [ 2005 >engramme engramme>number ] unit-test

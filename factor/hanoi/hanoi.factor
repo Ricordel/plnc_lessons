@@ -1,10 +1,11 @@
 IN: hanoi
 
-USING: kernel math vectors sequences strings io ;
+USING: io kernel math math.parser sequences strings vectors ;
+
 
 ! === Affichage d'un mouvement ===
 : move ( a b -- str )
-    [ 48 + 1vector ] bi@
+    [ >digit 1vector ] bi@
     [ " vers " ] dip
     append append >string
 ;
@@ -25,8 +26,8 @@ USING: kernel math vectors sequences strings io ;
     1 = [
         drop move print
     ] [
-        1 - [ partial ] dip [ hanoi ] 3keep   ! calcul de hanoi n-1 entre d et other
-        [ partial 2dup move print ] dip   ! Afficher le déplacement du "grand disque"
-        [ swap partial swap ] dip hanoi   ! calcul de hanoi n-1 entre other et a
+        1 - [ partial ] dip [ hanoi ] 3keep   ! hanoi n-1 entre d et other
+        [ partial 2dup move print ] dip   ! déplacement du "grand disque"
+        [ swap partial swap ] dip hanoi   ! hanoi n-1 entre other et a
     ] if
 ;
