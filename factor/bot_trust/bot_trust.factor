@@ -25,9 +25,29 @@ TUPLE: robot position time min-time ;
     [ needed-time ] [ drop min-time>> ] 2bi max
 ;
 
+
+
+: do-move ( robot2 robot1 move -- updates_robot2 updated_robot1 )
+     2dup [ second string>number nip ] [ earlier-possible ] 2bi [ drop ] 2dip ! heure d'appui sur le bouton, et emplacement
+     [ [ >>position ] dip >>time ] keep ! mise à jour de l'heure et de la positon du robot qui a bougé
+     swap [ >>min-time ] dip ! mise à jour du min-time du robot qui n'a pas bougé
+;
+    
     
 
-! : make-move ( orange blue move -- orange blue )
+
+: step ( orange blue move -- updated_orange updated_blue )
+    dup first "B" = [ do-move ] [ swap do-move swap ] if
+;
+    
+
+
+: min-time ( orange blue moves -- final_orange final_blue )
+    [ step ] map ! drop ? OU 2map ? ou curry ? FIXME
+    [ time>> ] bi@ max
+;
+
+
     
 
 
