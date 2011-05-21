@@ -1,6 +1,6 @@
 IN: bot_trust
 
-USING: accessors grouping kernel math math.parser math.order sequences splitting ;
+USING: accessors grouping io kernel math math.parser math.order sequences splitting ;
 
 
 TUPLE: robot position time min-time ;
@@ -22,28 +22,39 @@ TUPLE: robot position time min-time ;
 
 
 : earlier-possible ( robot move -- earlier-time-possible )
-    [ needed-time ] [ drop min-time>> ] 2bi max
+    [ needed-time ] [ drop min-time>> ] 2bi max dup number>string print
 ;
 
 
 
 : do-move ( robot2 robot1 move -- updates_robot2 updated_robot1 )
-     2dup [ second string>number nip ] [ earlier-possible ] 2bi [ drop ] 2dip ! heure d'appui sur le bouton, et emplacement
-     [ [ >>position ] dip >>time ] keep ! mise à jour de l'heure et de la positon du robot qui a bougé
-     swap [ >>min-time ] dip ! mise à jour du min-time du robot qui n'a pas bougé
+    [ dup ] dip [ second string>number nip ] [ earlier-possible ] 2bi ! heure d'appui sur le bouton, et emplacement
+    [ [ >>position ] dip >>time ] keep ! mise à jour du robot qui a bougé
+    swap [ 1 + >>min-time ] dip ! mise à jour du robot qui n'a pas bougé
 ;
     
     
 
 
 : step ( orange blue move -- updated_orange updated_blue )
-    dup first "B" = [ do-move ] [ swap do-move swap ] if
+    dup first "B" = [ do-move " le bleu bouge " print ] [ [ swap ] dip do-move swap " l'orange bouge" print ] if
 ;
     
 
 
-: min-time ( orange blue moves -- final_orange final_blue )
-    [ step ] map ! drop ? OU 2map ? ou curry ? FIXME
+: all-steps ( orange blue moves -- final_orange final_blue )
+    dup empty? [
+        drop
+    ] [
+        [ first ] keep [ step ] dip
+        rest all-steps
+    ] if
+;
+
+
+: min-time ( orange blue moves -- min_time )
+    get-orders
+    all-steps
     [ time>> ] bi@ max
 ;
 
