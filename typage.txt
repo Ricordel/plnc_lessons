@@ -1,0 +1,24 @@
+Faiblement typé : les objets ont un type mais peuvent en changer, ce qui
+n'est pas le cas dans un typage fort.
+
+Ex : C est faiblement typé, Scala l'est fortement
+
+Statique / dynamique :
+Scala est statiquement typé, factor est dynamique.
+
+==== Le duck typing ====
+Le typage est fait par les capacités, le type d'un objet est décidé par
+les méthodes qu'il expose.
+Ex: Python, Ruby, ...
+
+On peut aussi le faire avec un langage statique comme Scala :
+type Duck = List[String]
+est possible (juste un alias)
+
+type Duck = { def quack(): Unit }
+est très différent : un objet a le type Duck ssi il a une méthode
+quack() de type Unit :
+f(d: Duck) = d.quack()
+pourra alors compiler
+
+On appelle ça le **structural typing**, c'est aussi souple et plus sûr.

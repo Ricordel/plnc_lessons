@@ -1,0 +1,7 @@
+==== Question de performances ====
+Factor vs. Scala :
+	- le compilateur Factor est très efficace ET c'est du code natif, MAIS on a du
+	typage dynamique.
+	- Compile pour la JVM, mais celle-ci devient de plus en plus
+	efficace avec le JIT etc... Maintenant il faut faire attention à
+	la localité des caches même sur la JVM.
