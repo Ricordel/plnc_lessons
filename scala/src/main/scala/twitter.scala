@@ -25,39 +25,38 @@ object Exit
 object TwitterActor
 {
 
-    def main(args : Array[String]) =
-        {
-        /** On peut passe comme arguments : 
-        *      - une requête
-        *      - optionnellement un nombre maximum de tweets à récupérer
-        */
+    //def main(args : Array[String]) =
+        //{
+        ///[> On peut passe comme arguments : 
+             //- une requête
+             //- optionnellement un nombre maximum de tweets à récupérer
 
-        if (args.size < 1)
-            exit()
+        //if (args.size < 1)
+            //exit()
 
-        /** Les requêtes passent pas l'intermédiaire d'un acteur **/
-        val actor = new TwitterActor
-        actor.start
+        ///[> Les requêtes passent pas l'intermédiaire d'un acteur *
+        //val actor = new TwitterActor
+        //actor.start
 
-        val ret =
-            if (args.size == 1)
-                actor !! (Query(args(0)), { case t: List[Tweet] => t} )
-            else
-                actor !! (LimitedQuery(args(0), args(1).toInt), { case t: List[Tweet] => t })
+        //val ret =
+            //if (args.size == 1)
+                //actor !! (Query(args(0)), { case t: List[Tweet] => t} )
+            //else
+                //actor !! (LimitedQuery(args(0), args(1).toInt), { case t: List[Tweet] => t })
 
-        ret() match {
-            case l: List[Tweet] =>
-                if (l.length == 0)
-                    println("IL n'y a pas de tweet correspondant")
-                else {
-                    println("\n\nVoici les " + l.length + " derniers tweets correspondant à la recherche " + args(0) + "\n")
-                    l foreach println
-            }
-        }
+        //ret() match {
+            //case l: List[Tweet] =>
+                //if (l.length == 0)
+                    //println("IL n'y a pas de tweet correspondant")
+                //else {
+                    //println("\n\nVoici les " + l.length + " derniers tweets correspondant à la recherche " + args(0) + "\n")
+                    //l foreach println
+            //}
+        //}
 
-        println("\n\n")
-        actor ! Exit
-    }
+        //println("\n\n")
+        //actor ! Exit
+    //}
 
 
 }
