@@ -2,6 +2,7 @@ module RPN where
 
 import System.IO
 import Data.Char
+import Peano
 
 
 ----------------------------------------
@@ -9,9 +10,8 @@ import Data.Char
 ----------------------------------------
 
 -- Ensuite, on paramètrera
-type Stack = [Int]
-type Operator = Stack -> Stack
-
+type Stack a = [a]
+type Operator a = Stack a -> Stack a
 
 
 ----------------------------------------
@@ -20,42 +20,43 @@ type Operator = Stack -> Stack
 
 
 -- Factorisation de l'appel à l'opérateur binaire
-binOp :: (Int -> Int -> Int) -> Operator
-binOp op (a : b : rest) = (op b a) : rest -- ordre inversé pour - et /
+binOp :: Num a => (a -> a -> a) -> Operator a
+binOp op (a : b : rest) = (op b a) : rest
 
 
 
 -- Parsage des opérations autorisées
-parseOp :: String -> Operator
-parseOp s | s == "+" = binOp (+)
-          | s == "-" = binOp (-)
-          | s == "*" = binOp (*)
-          | s == "/" = binOp div
-          | s == "dup" = \(a : rest) -> a : a : rest
-          | s == "swap" = \(a : b : rest) -> b : a : rest
-          | s == "drop" = tail
-          | s == "depth" = \st -> (length st) : st
-          | s == "pick" = \(a : rest) -> (rest !! a) : rest
-          | s == "clear" = \_ -> []
-
-parseOp num  = \st -> (read num) : st
+parseOp :: (Num a, Enum a, Integral a, Read a) => String -> Operator a
+parseOp s = case s of 
+                "+" -> binOp (+)
+                "-" -> binOp (-)
+                "*" -> binOp (*)
+                "/" -> binOp div
+                "dup" -> \(a : rest) -> a : a : rest
+                "swap" -> \(a : b : rest) -> b : a : rest
+                "drop" -> tail
+                "depth" -> \st -> (toEnum $ length st) : st
+                "pick" -> \(a : rest) -> (rest !! (fromEnum a)) : rest
+                "clear" -> \_ -> []
+                num -> \st -> (read num) : st
 
 
 
 -- Evaluation d'une suite d'opérateurs --
-eval :: Stack -> [Operator] -> Stack
+eval :: Num a => Stack a -> [Operator a] -> Stack a
 eval st [] = st
 eval st (a : rest) = eval (a st) rest
 
 
 -- Parsage d'une entrée --
-parse :: String -> [Operator]
+parse :: (Num a, Integral a, Enum a, Read a) => String -> [Operator a]
 parse str = map parseOp (words str)
 
 
 
 -- Boucle principale pour tester notre mini-factor --
-repl :: Stack -> IO ()
+{-repl :: (Num a, Integral a, Enum a, Read a) => Stack a -> IO ()-}
+repl :: Stack Peano -> IO ()
 repl stack = do
     putStr "> "
     hFlush stdout
