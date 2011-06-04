@@ -27,16 +27,17 @@ binOp op (a : b : rest) = (op b a) : rest -- ordre inversé pour - et /
 
 -- Parsage des opérations autorisées
 parseOp :: String -> Operator
-parseOp "+" = binOp (+)
-parseOp "-" = binOp (-)
-parseOp "*" = binOp (*)
-parseOp "/" = binOp div
-parseOp "dup" = \(a : rest) -> a : a : rest
-parseOp "swap" = \(a : b : rest) -> b : a : rest
-parseOp "drop" = tail
-parseOp "depth" = \st -> (length st) : st
-parseOp "pick" = \(a : rest) -> (rest !! a) : rest
-parseOp "clear" = \_ -> []
+parseOp s | s == "+" = binOp (+)
+          | s == "-" = binOp (-)
+          | s == "*" = binOp (*)
+          | s == "/" = binOp div
+          | s == "dup" = \(a : rest) -> a : a : rest
+          | s == "swap" = \(a : b : rest) -> b : a : rest
+          | s == "drop" = tail
+          | s == "depth" = \st -> (length st) : st
+          | s == "pick" = \(a : rest) -> (rest !! a) : rest
+          | s == "clear" = \_ -> []
+
 parseOp num  = \st -> (read num) : st
 
 
