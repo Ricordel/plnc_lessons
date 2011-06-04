@@ -1,7 +1,8 @@
 -- Haskell est lazy : les choses ne sont évaluées qu'en cas de besoin.
 -- Par ex, on peut très bien écrire x = 4 / 0, pas de problème tant qu'on n'évalue pas.
 
-> Ceci est un commentaire de documentation
+> Ceci est un commentaire de documentation si on fait du litterate programming
+
 
 
 --------------------- Quelques mots sur le REPL -------------------------
@@ -93,7 +94,7 @@ f _ = error "foobar" -- le _ = don't care
 
 
 -- Fibo avec une liste infinie :
-fibos = 1 : 1 zipWith (+) fibos (tail fibos)
+fibos = 1 : 1 : zipWith (+) fibos (tail fibos)
 
 
 -- Définissions +++ sur des entiers
@@ -131,7 +132,6 @@ f $ x = f x
 
 -- Si on veut vraiment le redéfinir
 import Prelude hiding (($))
--- PENSER À METTRE LE $ DANS UNE COULEUR SPÉCIALE !
 
 
 
@@ -150,19 +150,29 @@ k x = \_ -> x -- la valeur de x est captée lorsque c est appelée
 
 
 -- Une application partielle sur le 2è argument
-partialsecond :: ( a -> b -> c) -> b -> (a -> c)
+partialsecond :: ( a -> b -> c) -> b -> a -> c
 partialsecond f y x = f x y
 -- On pourrait aussi l'appeler flip (ou C...)
 (flip K 3) -- vaut l'identité
 
 -- flip K = C K
 
-sec = flip c -- Sec 10 20 retournera 20
+sec = flip k -- Sec 10 20 retournera 20
 
 s x y z = x z (y z)
 
 i = s k k
 -- Avec le typage d'Haskell, on ne peut pas déclarer Y car il n'est pas typable
+
+
+
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+--                  Le monde merveilleux des monades                            --
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 
 -- Le type Maybe, qui correspond aux options
