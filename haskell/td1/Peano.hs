@@ -7,8 +7,11 @@ data Peano = Zero
             | Succ Peano
 
 
+-- Le type Peano appartient à de nombreuses type classes, afin d'avoir
+-- de pouvoir faire à peu près tout ce qu'on peut imaginer faire avec un type
+-- numérique comme celui-là.
+
 instance Num Peano where
-    -- Définissons les opérations requises par Num
     Zero + x = x
     x + Zero = x
     x + Succ y = Succ (x + y)
@@ -21,11 +24,6 @@ instance Num Peano where
     Zero * _ = Zero
     x * Succ y = x * y + x
 
-    {-div _ Zero = error "Division by Zero"-}
-    {-div Zero _ = Zero-}
-    {-div a b = fromInteger $ div (toInteger a) (toInteger b)-}
-    
-
     signum Zero = 0
     signum _ = 1
 
@@ -33,6 +31,26 @@ instance Num Peano where
 
     fromInteger 0 = Zero
     fromInteger x = Succ $ fromInteger (x - 1)
+
+
+instance Integral Peano where
+    toInteger Zero = 0
+    toInteger (Succ x) = 1 + toInteger x
+
+    quotRem a b = (fromInteger q, fromInteger r)
+                where q = div (toInteger a) (toInteger b)
+                      r = rem (toInteger a) (toInteger b)
+
+    div a b = fromInteger $ div p q
+                where p = toInteger a
+                      q = toInteger b
+
+
+
+instance Real Peano where
+    toRational a = (toInteger a) % 1
+
+
 
 
 
@@ -49,43 +67,6 @@ instance Ord Peano where
     Succ x <= Succ y = x <= y
 
 
-instance Show Peano where
-    show Zero = "Z"
-    show (Succ a) = "S(" ++ show a ++ ")"
-
-
-instance Read Peano where
-    readsPrec _ "Z" = [(Zero, "")]
-
-    -- Forcer la parenthèse fermante ?!
-    readsPrec p ('S':'(' : str) = [(Succ rest, str_rest)]
-                where [(rest, str_rest)] = let (s, ')') = (init str, last str)
-                                            in readsPrec p s
-
-    
-
-    readsPrec p ('S' : str) = [(Succ (rest), str_rest)]
-                where [(rest, str_rest)] = readsPrec p str
-
-
-
-instance Real Peano where
-    toRational a = (toInteger a) % 1
-
-    
-
-instance Integral Peano where
-    toInteger Zero = 0
-    toInteger (Succ x) = 1 + toInteger x
-
-    quotRem a b = (fromInteger q, fromInteger r)
-                where q = div (toInteger a) (toInteger b)
-                      r = rem (toInteger a) (toInteger b)
-
-    div a b = fromInteger $ div p q
-                where p = toInteger a
-                      q = toInteger b
-    
 
 
 instance Enum Peano where
@@ -103,3 +84,25 @@ instance Enum Peano where
     enumFromThen x y = map toEnum [(fromEnum x), (fromEnum y)..]
     enumFromTo x y = map toEnum [(fromEnum x)..(fromEnum y)]
     enumFromThenTo x y z = map toEnum [(fromEnum x), (fromEnum y)..(fromEnum z)]
+
+
+
+
+instance Show Peano where
+    show Zero = "Z"
+    show (Succ a) = "S(" ++ show a ++ ")"
+
+    
+
+instance Read Peano where
+    readsPrec _ "Z" = [(Zero, "")]
+
+    -- Forcer la parenthèse fermante ?!
+    readsPrec p ('S':'(' : str) = [(Succ rest, str_rest)]
+                where [(rest, str_rest)] = let (s, ')') = (init str, last str)
+                                            in readsPrec p s
+
+    
+
+    readsPrec p ('S' : str) = [(Succ (rest), str_rest)]
+                where [(rest, str_rest)] = readsPrec p str

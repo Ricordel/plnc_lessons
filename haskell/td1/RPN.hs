@@ -9,7 +9,6 @@ import Peano
 -- Les types nécessaires à l'exercice --
 ----------------------------------------
 
--- Ensuite, on paramètrera
 type Stack a = [a]
 type Operator a = Stack a -> Stack a
 
@@ -19,7 +18,7 @@ type Operator a = Stack a -> Stack a
 ----------------------------------------
 
 
--- Factorisation de l'appel à l'opérateur binaire
+-- Factorisation de l'appel à un opérateur binaire
 binOp :: Num a => (a -> a -> a) -> Operator a
 binOp op (a : b : rest) = (op b a) : rest
 
@@ -54,9 +53,8 @@ parse str = map parseOp (words str)
 
 
 
--- Boucle principale pour tester notre mini-factor --
-{-repl :: (Num a, Integral a, Enum a, Read a) => Stack a -> IO ()-}
-repl :: Stack Peano -> IO ()
+-- Boucle principale pour tester notre mini-factor (...) --
+repl :: Stack Peano -> IO () -- Changer de type de Stack si on veut travailler sur un autre type numérique
 repl stack = do
     putStr "> "
     hFlush stdout
