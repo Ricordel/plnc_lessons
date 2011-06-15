@@ -125,7 +125,7 @@ instance Monad (State s) where
     -- on veut en fait qu'un appel du genre
     -- runState (return "foobar") 18 ==> ("foobar", 18)
 
-    (Stage x) >>= f = State $ \s ->
+    x >>= f = State $ \s ->
                         let (r, s') = runState x s -- extraction + passage de l'état par x
                             (r', s'') = runState (f r) s' -- Appel de f + passage par f
                         in (r', s'')
@@ -151,7 +151,7 @@ put :: s -> State s ()
 put newState = State $ \s -> ((), newState)
 
 modify :: (s -> s) -> State s ()
-modify f :: get >>= put.f
+modify f = get >>= put.f
 
 
 
@@ -197,3 +197,35 @@ getMaybeLineIfPresent :: MaybeT IO String -- MaybeT IO est une monade
 getMaybeLineIfPresent = do
                             line <- lift getLine -- on peut quand même travailler à l'intérieur de la monade IO
                             if not $ isEmpty line then return line else fail "Empty line"
+
+
+
+--- Translation from do-notation to monadic notation
+do 
+    rslt <- action
+    o_rslt <- o_action
+    (action_based_on_results rslt o_rslt)
+
+-- gets translated into
+
+action >>= f
+where f rslt = do
+                    o_rslt <- o_action
+                    (action_based_on_results rslt o_rslt)
+      f _ = fail "..."
+
+
+
+do
+    action
+    other_action
+    yet_another_action
+
+-- se traduit par
+
+action >> do
+            other_action
+            yet_another_action
+
+
+-- et ainsi de suite de manière récursive
