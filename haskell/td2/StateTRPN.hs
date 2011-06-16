@@ -4,18 +4,16 @@ import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State.Lazy
 import System.IO
-import Data.Char
 
 
--- Notre type principal sera maintenant
+-- On réécrit l'interprêteur RPN pour travailler dans une monade de type
 --          StateT (Stack a) IO ()
--- i.e on fera des IO en gardant en mémoire l'état du programme
--- (à savoir la pile)
+-- i.e on fera des IO en gardant en mémoire l'état du programme (la pile)
 
 
--- Un opérateur est donc de ce type
+-- On a besoin des types suivants
 type Stack a = [a]
-type Operator a = StateT (Stack a) IO ()
+type Operator a = StateT (Stack a) IO () -- Un opérateur modifie l'état et fait des IO
 
 
 
@@ -27,8 +25,8 @@ binOp op = do
                 put $ (op b a) : rest
 
 
+
 -- Les différentes instructions
--- Effets de bord sur la pile, pas d'IO non plus
 parseOp :: (Num a, Enum a, Integral a, Read a) => String -> Operator a
 parseOp s = case s of 
                 "+" -> binOp (+)
@@ -56,6 +54,14 @@ parseOp s = case s of
                 "clear" -> do
                             put []
 
+                "." -> do
+                            (x:xs) <- get
+                            lift $ putStrLn (show x) -- lift pour rentrer dans la monate StateT et agit sur la monade IO
+
+                ".s" -> do
+                            stack <- get
+                            lift $ putStrLn (show $ reverse stack)
+
                 num -> do
                             st <- get
                             put $ (read num) : st
@@ -63,15 +69,11 @@ parseOp s = case s of
 
 
 
--- eval consiste à "écraser" les différents opérateurs en un seul
-eval :: Num a => [Operator a] -> Operator a -- Operator a = StateT (Stack a) IO ()
-eval [] = do
-            stack <- get
-            lift $ putStrLn (show $ reverse stack) -- effet de bord *dans la monade IO* (lift)
-            StateT $ \s -> return ((), s) -- Le StateT "qui fait rien"
-
-eval (op : list) = op >> (eval list)
-
+-- eval consiste à "écraser" une liste d'opérateurs en un seul opérateur
+eval :: Num a => [Operator a] -> Operator a
+eval list = let neutral = StateT $ \s -> return ((), s)
+            in
+                foldl (>>) neutral list
 
 
 -- Parse une chaine entrée par l'utilisateur
@@ -82,7 +84,7 @@ parse str = map parseOp (words str)
 
 repl :: (Integral a, Read a, Show a) => StateT (Stack a) IO b
 repl = forever $ do
-    lift $ putStr "> " -- lift pour faire "rentrer" à l'intérieur du State la fonction qui s'applique à une monade IO
+    lift $ putStr "> "
     lift $ hFlush stdout
     line <- lift getLine
     eval $ parse line
