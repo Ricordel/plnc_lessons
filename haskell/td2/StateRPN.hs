@@ -5,7 +5,6 @@ import Data.Char
 import Control.Monad
 
 import StateMonad
-import Peano
 
 
 
@@ -65,8 +64,6 @@ parseOp s = case s of
                             put $ (read num) : st
 
 
--- Dans cette version, eval applique les différents opérateurs puis retourne le
--- sommet de la pile. Les commandes devront donc être entrées en une seule fois
 eval :: Num a => [Operator a] -> a
 eval stack = let rslt = foldl (>>) init_val stack -- "applattisement" des effets de bord
                     where init_val = State $ \s -> ((), s) -- "identité" de >>
@@ -82,7 +79,9 @@ parse str = map parseOp (words str)
 
 
 
--- Boucle principale pour tester notre mini-factor (...) --
+-- Dans cette version, eval applique les différents opérateurs puis retourne le
+-- sommet de la pile (et non la State Monad). Les commandes devront donc être entrées en une seule fois
+-- car l'état ne sera pas transmis au "prochain tour de forever"
 repl :: IO ()
 repl = forever $ do
                 putStr "> "

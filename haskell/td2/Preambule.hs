@@ -13,7 +13,7 @@ data Tree a = Leaf a | Branch (Tree a) (Tree a)
 
 
 -- Dans le cas où on choisi MonadPlus == [], on aura la liste des profondeurs de toutes les occurences
--- de l'élément dans l'arbre
+-- de l'élément dans l'arbre. Dans le cas de Maybe, on a la première occurence rencontrée
 findDepth :: (Eq a, MonadPlus m) => a -> Tree a -> m Int
 
 findDepth e (Leaf x) | x == e = return 0
@@ -58,9 +58,3 @@ times i f | i == 0 = return ()
 -- ...
 -- Hello 1
 five_times_hello = times 5 ( \i -> putStrLn $ "Hello " ++ (show i) )
-
-
-
-
-
-

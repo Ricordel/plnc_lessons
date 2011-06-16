@@ -57,7 +57,9 @@ parseOp s = case s of
                 "." -> do
                             (x:xs) <- get
                             lift $ putStrLn (show x) -- lift pour rentrer dans la monate StateT et agit sur la monade IO
+                            put xs -- comme en factor, . consomme un élément
 
+                -- simple affichage de la pile
                 ".s" -> do
                             stack <- get
                             lift $ putStrLn (show $ reverse stack)
